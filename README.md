@@ -124,4 +124,4 @@ C · POSIX Threads · POSIX IPC · GCC · Linux · Make
 **Zoha Ashraf**
 BS Computer Science — FAST-NUCES Chiniot-Faisalabad
 
-[LinkedIn](https://www.linkedin.com/in/zoha-ashraf) · [GitHub](https://github.com/ZohaAshraf) · [Medium](https://medium.com/@f243019/i-built-a-concurrent-banking-system-in-c-to-master-operating-systems-0f377abbeff1)
+[LinkedIn](https://www.linkedin.com/in/zohashraf/) · [GitHub](https://github.com/ZohaAshraf/concurrent-banking-system-c) · [Medium](https://medium.com/@f243019/i-built-a-concurrent-banking-system-in-c-to-master-operating-systems-0f377abbeff1)
