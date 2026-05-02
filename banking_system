@@ -1,0 +1,96 @@
+/* accounts.c – Account management with mutex protection */
+#include "banking.h"
+
+Account         accounts[MAX_ACCOUNTS];
+int             num_accounts = 0;
+pthread_mutex_t account_mutex = PTHREAD_MUTEX_INITIALIZER;
+sem_t           deposit_sem;
+
+void init_accounts(void) {
+    /* seed six accounts covering all customer types */
+    struct { int id; double bal; int type; const char *name; } data[] = {
+        {1001, 5000.0, REGULAR,   "Alice"},
+        {1002, 8000.0, PREMIUM,   "Bob"},
+        {1003, 2000.0, LOAN,      "Charlie"},
+        {1004,15000.0, CORPORATE, "Acme Corp"},
+        {1005,12000.0, VIP,       "Diana"},
+        {1006, 3500.0, REGULAR,   "Eve"},
+    };
+    num_accounts = (int)(sizeof(data)/sizeof(data[0]));
+    for (int i = 0; i < num_accounts; i++) {
+        accounts[i].account_id  = data[i].id;
+        accounts[i].balance     = data[i].bal;
+        accounts[i].owner_type  = data[i].type;
+        strncpy(accounts[i].owner_name, data[i].name,
+                sizeof(accounts[i].owner_name) - 1);
+    }
+    /* semaphore allows at most 2 concurrent deposits */
+    sem_init(&deposit_sem, 0, 2);
+    log_event("Accounts initialised (%d accounts)", num_accounts);
+}
+
+Account *find_account(int account_id) {
+    for (int i = 0; i < num_accounts; i++)
+        if (accounts[i].account_id == account_id)
+            return &accounts[i];
+    return NULL;
+}
+
+int deposit(int account_id, double amount, const char *who) {
+    /* throttle via semaphore – max 2 concurrent deposits */
+    sem_wait(&deposit_sem);
+    pthread_mutex_lock(&account_mutex);
+
+    Account *acc = find_account(account_id);
+    if (!acc) {
+        log_event("DEPOSIT FAILED [%s]: account %d not found", who, account_id);
+        pthread_mutex_unlock(&account_mutex);
+        sem_post(&deposit_sem);
+        return -1;
+    }
+    acc->balance += amount;
+    log_event("DEPOSIT  [%s] +%.2f -> Account %d | Balance: %.2f",
+              who, amount, account_id, acc->balance);
+
+    pthread_mutex_unlock(&account_mutex);
+    sem_post(&deposit_sem);
+    return 0;
+}
+
+int withdraw(int account_id, double amount, const char *who) {
+    pthread_mutex_lock(&account_mutex);
+
+    Account *acc = find_account(account_id);
+    if (!acc) {
+        log_event("WITHDRAWAL FAILED [%s]: account %d not found", who, account_id);
+        pthread_mutex_unlock(&account_mutex);
+        return -1;
+    }
+    if (acc->balance < amount) {
+        log_event("WITHDRAWAL FAILED [%s]: insufficient funds (%.2f < %.2f)",
+                  who, acc->balance, amount);
+        pthread_mutex_unlock(&account_mutex);
+        return -1;
+    }
+    acc->balance -= amount;
+    log_event("WITHDRAW [%s] -%.2f -> Account %d | Balance: %.2f",
+              who, amount, account_id, acc->balance);
+
+    pthread_mutex_unlock(&account_mutex);
+    return 0;
+}
+
+void print_accounts(void) {
+    printf("\n%-10s %-20s %-15s %12s\n",
+           "AccountID", "Owner", "Type", "Balance");
+    printf("%-10s %-20s %-15s %12s\n",
+           "─────────","────────────────────","───────────────","────────────");
+    for (int i = 0; i < num_accounts; i++) {
+        printf("%-10d %-20s %-15s %12.2f\n",
+               accounts[i].account_id,
+               accounts[i].owner_name,
+               customer_type_str(accounts[i].owner_type),
+               accounts[i].balance);
+    }
+    printf("\n");
+}
