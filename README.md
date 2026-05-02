@@ -10,7 +10,7 @@ A full-scale C simulation of a concurrent banking environment built to demonstra
 
 A detailed technical breakdown of every module, design decision, and result is published on Medium.
 
-[Read on Medium →](https://medium.com/@zoha-ashraf)
+[Read on Medium →](https://medium.com/@f243019/i-built-a-concurrent-banking-system-in-c-to-master-operating-systems-0f377abbeff1)
 
 ---
 
@@ -124,4 +124,4 @@ C · POSIX Threads · POSIX IPC · GCC · Linux · Make
 **Zoha Ashraf**
 BS Computer Science — FAST-NUCES Chiniot-Faisalabad
 
-[LinkedIn](https://www.linkedin.com/in/zoha-ashraf) · [GitHub](https://github.com/ZohaAshraf) · [Medium](https://medium.com/@zoha-ashraf)
+[LinkedIn](https://www.linkedin.com/in/zoha-ashraf) · [GitHub](https://github.com/ZohaAshraf) · [Medium](https://medium.com/@f243019/i-built-a-concurrent-banking-system-in-c-to-master-operating-systems-0f377abbeff1)
